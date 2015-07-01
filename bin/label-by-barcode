@@ -2,9 +2,7 @@
 
 import argparse
 import logging
-import os
 import string
-from itertools import izip
 
 from Bio import SeqIO
 
@@ -29,12 +27,13 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--log', default='/dev/stderr',
                         help='log file (default=stderr)')
-    parser.add_argument('--output-dir', help='output directory')
-    parser.add_argument('--left-reads')
-    parser.add_argument('--right-reads')
-    parser.add_argument('--bc-reads', help='barcode reads')
+    parser.add_argument('--input', default='/dev/stdin')
+    parser.add_argument('--output', default='/dev/stdout')
+    parser.add_argument('--input-format', default='fasta')
+    parser.add_argument('--output-format', default='fasta')
     parser.add_argument('--barcodes', help='barcode list')
     parser.add_argument('--out-dir')
+
     return parser.parse_args()
 
 
@@ -57,6 +56,11 @@ def load_barcodes(path, rev_comp=True):
         quit(-1)
     return barcodes
 
+def print_stats(stats):
+    logging.info('total={total}, '
+                 'matched={matched}, '
+                 'unmatched={unmatched},'.format(**stats))
+
 
 def main():
     '''
@@ -78,58 +82,38 @@ def main():
 
     logging.info('barcode length: %s', bc_len)
 
-    left_handle, bc_handle, right_handle = \
-            open(args.left_reads), \
-            open(args.bc_reads), \
-            open(args.right_reads)
-
-    logging.info('saving to %s', args.output_dir)
-    os.mkdir(args.output_dir)
-
-    # map barcode id to output handle
-    bc_to_handle = {} # defaultdict(lambda x: 
-
-    parse = lambda h: SeqIO.parse(h, 'fastq')
-
     stats = { 'matched': 0,
               'unmatched': 0,
               'total': 0
               }
 
-    # big ugly loop ;)
-    for l, bc, r in izip(parse(left_handle),
-                         parse(bc_handle),
-                         parse(right_handle)):
+    logging.info('reading sequences from %s', args.input)
+    logging.info('writing output to %s', args.output)
+    output = open(args.output, 'w')
 
-        bc_seq = str(bc.seq)
-        match = barcodes.get(bc_seq, None)
+    with open(args.input) as handle:
+        records = SeqIO.parse(handle, args.input_format)
+        for record in records:
+            stats['total'] += 1
+            barcode = record.id.split(':')[-1]
 
-        # create output handle
-        if match not in bc_to_handle:
-            bc_to_handle[match] = \
-                    open('%s/%s.fastq' % (args.output_dir, match), 'w')
+            id = barcodes.get(barcode, None)
 
-        handle = bc_to_handle[match]
+            if id is None:
+                stats['unmatched'] += 1
+                continue
 
-        if match is not None:
             stats['matched'] += 1
-        else:
-            stats['unmatched'] += 1
 
-        handle.write(l.format('fastq'))
-        handle.write(r.format('fastq'))
+            record.id = '%s' % id
 
-        stats['total'] += 1
+            output.write(record.format(args.output_format))
 
-        if stats['total'] % 10000 == 0:
-            logging.info('matched={matched}, '
-                         'unmatched={unmatched}, '
-                         'total={total}'.format(**stats))
+            if stats['total'] % 10000 == 0: print_stats(stats)
 
-    # close output handles
-    [ i.close() for i in handle.values() ]
-
-    # finish up
+    print_stats(stats)
+    logging.info('done')
+    output.close()
 
 
 
