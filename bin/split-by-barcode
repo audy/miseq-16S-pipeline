@@ -1,0 +1,137 @@
+#!/usr/bin/env python
+
+import argparse
+import logging
+import os
+import string
+from itertools import izip
+
+from Bio import SeqIO
+
+REVCOMP = string.maketrans('GATCRYgatcry', 'CTAGYRctagyr')
+
+def reverse_complement(seq, tr=REVCOMP):
+    ''' reverse complement a DNA sequence '''
+    return complement(seq, tr=REVCOMP)[::-1]
+
+def complement(seq, tr=REVCOMP):
+    ''' complement a DNA sequence '''
+    return seq.translate(tr)
+
+
+def parse_args():
+    '''
+    return arguments
+    >>> args = parse_args()
+
+    '''
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--log', default='/dev/stderr',
+                        help='log file (default=stderr)')
+    parser.add_argument('--output-dir', help='output directory')
+    parser.add_argument('--left-reads')
+    parser.add_argument('--right-reads')
+    parser.add_argument('--bc-reads', help='barcode reads')
+    parser.add_argument('--barcodes', help='barcode list')
+    parser.add_argument('--out-dir')
+    return parser.parse_args()
+
+
+def load_barcodes(path, rev_comp=True):
+    barcodes = {}
+    with open(path) as handle:
+        for line in handle:
+            id_, seq = line.strip().split(',')
+
+            if rev_comp == True:
+                seq = reverse_complement(seq)
+
+            if seq in barcodes:
+                logging.error('sequence %s present multiple times in %s', seq, path)
+                quit(-1)
+            barcodes[seq] = id_
+
+    if not len(set(len(i) for i in barcodes.keys())) == 1:
+        logging.error('barcodes must all be equal length!')
+        quit(-1)
+    return barcodes
+
+
+def main():
+    '''
+        >>> main() # stuff happens
+    '''
+
+    args = parse_args()
+    logging.basicConfig(filename=args.log, level=logging.INFO)
+
+    logging.info(args)
+
+    barcodes = load_barcodes(args.barcodes, rev_comp=True)
+
+    logging.info('loaded %s barcodes', len(barcodes))
+
+    # get barcode length, use to trim barcode read. We can do this because
+    # load_barcodes asserts that they're all the same length
+    bc_len = len(barcodes.keys()[0])
+
+    logging.info('barcode length: %s', bc_len)
+
+    left_handle, bc_handle, right_handle = \
+            open(args.left_reads), \
+            open(args.bc_reads), \
+            open(args.right_reads)
+
+    logging.info('saving to %s', args.output_dir)
+    os.mkdir(args.output_dir)
+
+    # map barcode id to output handle
+    bc_to_handle = {} # defaultdict(lambda x: 
+
+    parse = lambda h: SeqIO.parse(h, 'fastq')
+
+    stats = { 'matched': 0,
+              'unmatched': 0,
+              'total': 0
+              }
+
+    # big ugly loop ;)
+    for l, bc, r in izip(parse(left_handle),
+                         parse(bc_handle),
+                         parse(right_handle)):
+
+        bc_seq = str(bc.seq)
+        match = barcodes.get(bc_seq, None)
+
+        # create output handle
+        if match not in bc_to_handle:
+            bc_to_handle[match] = \
+                    open('%s/%s.fastq' % (args.output_dir, match), 'w')
+
+        handle = bc_to_handle[match]
+
+        if match is not None:
+            stats['matched'] += 1
+        else:
+            stats['unmatched'] += 1
+
+        handle.write(l.format('fastq'))
+        handle.write(r.format('fastq'))
+
+        stats['total'] += 1
+
+        if stats['total'] % 10000 == 0:
+            logging.info('matched={matched}, '
+                         'unmatched={unmatched}, '
+                         'total={total}'.format(**stats))
+
+    # close output handles
+    [ i.close() for i in handle.values() ]
+
+    # finish up
+
+
+
+if __name__ == '__main__':
+    main()
