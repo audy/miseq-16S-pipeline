@@ -98,6 +98,8 @@ def count_clusters(handle):
     sample_otu_reads = defaultdict(lambda: defaultdict(int))
     file_size = os.path.getsize(handle.name)
 
+    all_otus = set()
+
     skipped = 0
 
     for line in handle:
@@ -117,6 +119,8 @@ def count_clusters(handle):
         identity = dat['identity']
         length = dat['length']
 
+        all_otus.add(cluster)
+
         # check if cluster meets criteria
         if _type == 'H' and identity >= args.min_identity and length >= args.min_length:
             sample_otu_reads[sample][cluster] += 1
@@ -128,6 +132,10 @@ def count_clusters(handle):
             logger.info('so far I\'ve seen %s samples.' % len(sample_otu_reads))
 
     logging.info('skipped %s weird lines' % skipped)
+
+    logging.info('generated OTU table with %s samples and %s OTUs',
+            len(sample_otu_reads.keys()),
+            len(all_otus))
 
     return sample_otu_reads
 
