@@ -6,7 +6,8 @@ left_reads='test/data/reads_R1.fastq'
 bc_reads='test/data/reads_I1.fastq'
 right_reads='test/data/reads_R2.fastq'
 
-# TODO: download greengenes + usearch
+database='gg_13_8_otus/rep_set/97_otus.fasta'
+
 
 # assemble overlapping, paired-end Illumina HiSeq reads
 pandaseq \
@@ -23,10 +24,10 @@ bin/label-by-barcode \
   > labelled.fasta
 
 # make usearch database
-if [ ! -e db/97_otus.udb ]; then
+if [ ! -e "${database}.udb" ]; then
   usearch \
-    -makeudb_usearch db/97_otus.fasta \
-    -output db/97_otus.udb
+    -makeudb_usearch ${database} \
+    -output ${database}.udb
 fi
 
 # classify reads with usearch
@@ -36,11 +37,9 @@ usearch \
   -query_cov 0.95 \
   -strand plus \
   -uc labelled.uc \
-  -db db/97_otus.udb
+  -db ${database}.udb
 
 # generate OTU table
 bin/count-taxonomies \
   < labelled.uc \
   > labelled.csv
-
-# TODO: test phyloseq import
