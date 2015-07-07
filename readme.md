@@ -14,6 +14,15 @@ by Austin G. Davis-Richardson
 4. Pandaseq (from [this]() `ref` on GitHub)
   (`brew install pandaseq --HEAD` will work if you're on a mac and have homebrew + homebrew-science installed)
 
+### Running on HPC
+
+Distributing this on the HPC is possible but not really worth it. You can
+analyze MiSeq 16S rRNA reads on a laptop in a few minutes. But, everything you
+need to run the analysis pipeline is already installed on the HPC.
+
+To run this on the HPC, first run `test/prepare_hpc.sh`. This will load the
+appropriate versions of Pandaseq and USEARCH needed to run the analysis.
+
 # Notes
 
 - Must be using latest version of Pandaseq that supports `-i` flag. See this
