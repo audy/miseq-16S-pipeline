@@ -65,10 +65,48 @@ bin/label-by-barcodes \
 ### Run USEARCH
 
 ```bash
+# make usearch database
 usearch \
-  -usearch_local labelled.fastq \
-  -database greengenes_97.uc.udb \
-  -b6out labelled.versus_gg97.txt
+  -makeudb_usearch db/97_otus.fasta \
+  -output db/97_otus.udb
+
+# classify reads with usearch
+usearch \
+  -usearch_local labelled.fasta \
+  -id 0.97 \
+  -query_cov 0.95 \
+  -strand plus \
+  -uc labelled.uc \
+  -db db/97_otus.udb
 ```
 
-### Count Taxonomies
+### Generate OTU Table
+
+```bash
+bin/count-taxonomies \
+  < labelled.uc \
+  > labelled.csv
+
+```
+
+That's it! The file `labelled.csv` can be then loaded into Phyloseq. You will
+also need the taxonomy table `db/97_otu_taxonomy.txt`.
+
+# Load Data into Phyloseq
+
+```S
+# you will also need a metadata table
+# (todo: make a sample dataset)
+
+meta <- read.csv('metadata.csv')
+otus <- read.csv('labelled.csv', header=T, row.names=1)
+taxa <- read.csv('db/97_otu_taxonomy.txt')
+
+otus <- otu_table(otus)
+taxa <- taxonomy_table(taxa)
+meta <- sample_data(meta)
+
+phy <- phyloseq(otus, taxa, meta)
+
+# do some stuff with Phyloseq
+```
