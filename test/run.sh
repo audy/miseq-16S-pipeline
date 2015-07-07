@@ -23,9 +23,11 @@ bin/label-by-barcode \
   > labelled.fasta
 
 # make usearch database
-#usearch \
-#  -makeudb_usearch db/97_otus.fasta \
-#  -output db/97_otus.udb
+if [ ! -e db/97_otus.udb ]; then
+  usearch \
+    -makeudb_usearch db/97_otus.fasta \
+    -output db/97_otus.udb
+fi
 
 # classify reads with usearch
 usearch \
