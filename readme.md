@@ -23,6 +23,9 @@ need to run the analysis pipeline is already installed on the HPC.
 To run this on the HPC, first run `test/prepare_hpc.sh`. This will load the
 appropriate versions of Pandaseq and USEARCH needed to run the analysis.
 
+Just make sure you connect ot a development node before running any of the
+analysis steps. The easiest way to do this is `ssh dev01`.
+
 # Notes
 
 - Must be using latest version of Pandaseq that supports `-i` flag. See this
