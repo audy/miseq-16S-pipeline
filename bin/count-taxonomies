@@ -1,0 +1,198 @@
+#!/usr/bin/env python
+
+import os
+import sys
+from collections import defaultdict
+import argparse
+import logging
+
+#
+# Count taxonomies and generate otu abundance tables given uc files where the
+# sample identifier is in the sequence name as the first item separated by
+# spaces.
+#
+# Invoke thusly,
+#
+# ./count-taxonomies < input.uc > output.csv
+#
+# Have a nice day,
+# Austin.
+#
+
+class RobertEdgarException(Exception):
+    ''' raise this exception whenever USEARCH does something weird '''
+    pass
+
+def parse_args():
+    ''' Parse command-line arguments
+
+        >>> args = parse_args()
+    '''
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--uc-file', default='/dev/stdin')
+    parser.add_argument('--output', default='/dev/stdout')
+
+    parser.add_argument('--test', action='store_true', default=False)
+    parser.add_argument('--min-length', type=int, default=0, help='minimum alignment length')
+    parser.add_argument('--min-identity', type=float, default=0, help='minimum percent id')
+
+    return parser.parse_args()
+
+
+def parse_uc_line(uc_line):
+    ''' parses a line of a uc file returning
+        the sample and cluster
+
+        >>> parse_uc_line('\t'.join(['H','X','X','X','X','X','X','sample_name.fasta blah blah', 'cluster_name']))
+        ('sample_name', 'cluster_name')
+
+        Counts misses as 'unclassified_reads'
+
+        >>> sample, cluster = parse_uc_line('\t'.join(['X','X','X','X','X','X','X','sample_name.fasta blah blah', 'cluster_name']))
+        ('sample_name', 'unclassified_reads')
+
+    '''
+
+    uc_line = uc_line.split("\t")
+
+    # sample id
+    if len(uc_line) != 10:
+        raise RobertEdgarException
+
+    sample = uc_line[8].split()[0]
+
+
+    # count non-hits as unclassified
+    if uc_line[0] == 'N':
+        cluster = 'unclassified_reads'
+        length = None
+        identity = None
+    elif uc_line[0] == 'H':
+        cluster = uc_line[9]
+
+        length = int(uc_line[2])
+        identity = float(uc_line[3])
+
+        if not cluster.isdigit():
+            raise RobertEdgarException
+    else:
+        raise RobertEdgarException
+
+
+    return { 'type': uc_line[0],
+             'sample': sample,
+             'cluster': cluster,
+             'identity': identity,
+             'length': length }
+
+
+def count_clusters(handle):
+    ''' count clusters given a uc file where the sample
+        ids are in the subject sequence id's in the proper
+        QIIME 1.7 style.
+    '''
+
+    # file position and line
+    posn, n = 0, 0
+    sample_otu_reads = defaultdict(lambda: defaultdict(int))
+    file_size = os.path.getsize(handle.name)
+
+    skipped = 0
+
+    for line in handle:
+        posn += len(line)
+        n += 1
+
+        try:
+            dat = parse_uc_line(line.strip())
+        except RobertEdgarException:
+            logger.warn('encountered weird usearch line: %s' % line.strip())
+            skipped += 1
+            continue
+
+        _type = dat['type']
+        sample = dat['sample']
+        cluster = dat['cluster']
+        identity = dat['identity']
+        length = dat['length']
+
+        # check if cluster meets criteria
+        if _type == 'H' and identity >= args.min_identity and length >= args.min_length:
+            sample_otu_reads[sample][cluster] += 1
+        else:
+            sample_otu_reads[sample]['unclassified_reads'] += 1
+
+        if n%100000 == 0:
+            logger.info('parsed %s lines.' % n)
+            logger.info('so far I\'ve seen %s samples.' % len(sample_otu_reads))
+
+    logging.info('skipped %s weird lines' % skipped)
+
+    return sample_otu_reads
+
+
+def save_clusters(cluster_counts, output):
+    '''
+    save clusters to file in CSV format.
+    '''
+    all_clusters = set()
+    for c in cluster_counts.values():
+        clusters = c.keys()
+        for i in clusters:
+            all_clusters.add(i)
+
+    all_clusters = sorted(list(all_clusters))
+    all_samples = sorted(cluster_counts.keys())
+
+    header = ','.join(all_clusters)
+
+    lines = []
+
+    lines.append(header)
+    for sample in all_samples:
+        row = [ str(cluster_counts[sample][cluster]) for cluster in all_clusters ]
+        row = ','.join(row)
+        line = '%s,%s' % (sample, row)
+        lines.append(line)
+    body = '\n'.join(lines)
+
+    print >> output, body
+
+
+def setup_logging(logfile='/dev/stderr', verbose=False):
+
+    if verbose:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+
+    logging.basicConfig(filename=logfile, level=level)
+
+    return logging
+
+
+def main(args):
+
+    global logger
+
+    logger = setup_logging()
+
+    logger.info('reading from %s' % args.uc_file)
+
+    with open(args.uc_file) as handle:
+        cluster_counts = count_clusters(handle)
+
+    logger.info('writing to %s' % args.output)
+
+    with open(args.output, 'w') as handle:
+        save_clusters(cluster_counts, handle)
+
+
+if __name__ == '__main__':
+    args = parse_args()
+    if args.test:
+        import doctest
+        doctest.testmod()
+    else:
+        main(args)
