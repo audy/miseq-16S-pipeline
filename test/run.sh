@@ -2,9 +2,11 @@
 set -x
 set -e
 
-left_reads='MS_ETriplett-103906_16S-BT0_2x300V3/Undetermined_S0_L001_R1_001.fastq'
-bc_reads='MS_ETriplett-103906_16S-BT0_2x300V3/Undetermined_S0_L001_I1_001.fastq'
-right_reads='MS_ETriplett-103906_16S-BT0_2x300V3/Undetermined_S0_L001_R2_001.fastq'
+left_reads='test/data/reads_R1.fastq'
+bc_reads='test/data/reads_I1.fastq'
+right_reads='test/data/reads_R2.fastq'
+
+# TODO: download greengenes + usearch
 
 # assemble overlapping, paired-end Illumina HiSeq reads
 pandaseq \
@@ -12,7 +14,7 @@ pandaseq \
   -i $bc_reads \
   -r $right_reads \
   -G log.txt.bz2 \
-  > assembled.fasta
+  -w assembled.fasta
 
 # label assembled reads by barcode
 bin/label-by-barcode \
@@ -21,9 +23,9 @@ bin/label-by-barcode \
   > labelled.fasta
 
 # make usearch database
-usearch \
-  -makeudb_usearch db/97_otus.fasta \
-  -output db/97_otus.udb
+#usearch \
+#  -makeudb_usearch db/97_otus.fasta \
+#  -output db/97_otus.udb
 
 # classify reads with usearch
 usearch \
@@ -35,3 +37,8 @@ usearch \
   -db db/97_otus.udb
 
 # generate OTU table
+bin/count-taxonomies \
+  < labelled.uc \
+  > labelled.csv
+
+# TODO: test phyloseq import
