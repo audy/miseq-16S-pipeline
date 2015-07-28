@@ -3,9 +3,9 @@
 #PBS -q default
 #PBS -m abe
 #PBS -j oe
-#PBS -l pmem=64gb
+#PBS -l pmem=1gb
 #PBS -l walltime=10:00:00
-#PBS -l nodes=1:ppn=24
+#PBS -l nodes=1:ppn=12
 #PBS -N miseq-pipeline
 
 # input files
