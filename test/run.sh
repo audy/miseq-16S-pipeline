@@ -1,17 +1,14 @@
 #!/bin/bash
 
-set -x
-set -e
-
-left_reads='test/data/reads_R1.fastq'
-bc_reads='test/data/reads_I1.fastq'
-right_reads='test/data/reads_R2.fastq'
-
-database='gg_13_8_otus/rep_set/97_otus.fasta'
+# input files
+: ${left_reads:='test/data/reads_R1.fastq'}
+: ${bc_reads:='test/data/reads_I1.fastq'}
+: ${right_reads:='test/data/reads_R2.fastq'}
+: ${database:='gg_13_8_otus/rep_set/97_otus.fasta'}
 
 # determine number of threads. This is defined by PBS_NP if submitting a job.
-# Otherwise, default to 8.
-: ${PBS_NP:="8"}
+# Otherwise, default to 1.
+: ${PBS_NP:="1"}
 
 # check if running on UF HPC and load modules
 if [ ${PBS_O_QUEUE} ]; then
