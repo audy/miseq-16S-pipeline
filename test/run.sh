@@ -37,8 +37,7 @@ usearch \
   -query_cov 0.95 \
   -strand plus \
   -uc labelled.uc \
-  -db ${database}.udb \
-  -threads ${PBS_NP}
+  -db ${database}.udb
 
 # generate OTU table
 bin/count-taxonomies \
