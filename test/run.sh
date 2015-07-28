@@ -30,13 +30,6 @@ bin/label-by-barcode \
   <  assembled.fasta \
   > labelled.fasta
 
-# make usearch database
-if [ ! -e "${database}.udb" ]; then
-  usearch \
-    -makeudb_usearch ${database} \
-    -output ${database}.udb
-fi
-
 # classify reads with usearch
 usearch \
   -usearch_local labelled.fasta \
