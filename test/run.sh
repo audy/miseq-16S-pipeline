@@ -1,5 +1,13 @@
 #!/bin/bash
 
+#PBS -q default
+#PBS -m abe
+#PBS -j oe
+#PBS -l pmem=64gb
+#PBS -l walltime=10:00:00
+#PBS -l nodes=1:ppn=24
+#PBS -N miseq-pipeline
+
 # input files
 : ${left_reads:='test/data/reads_R1.fastq'}
 : ${bc_reads:='test/data/reads_I1.fastq'}
@@ -10,10 +18,11 @@
 # Otherwise, default to 1.
 : ${PBS_NP:="1"}
 
-# check if running on UF HPC and load modules
+# only run if running on HPC
 if [ ${PBS_O_QUEUE} ]; then
   module load pandaseq/20150627
   module load usearch/6.1.544-64
+  cd ${PBS_O_WORKDIR}
 fi
 
 # assemble overlapping, paired-end Illumina HiSeq reads
