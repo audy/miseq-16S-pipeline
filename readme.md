@@ -37,7 +37,9 @@ analysis steps. The easiest way to do this is `ssh dev01`.
 
 4. Make sure the barcode reads are the same length as the barcode sequences in
    `barcodes.csv` as sometimes ICBR will add on an extra base. This is also
-   important when you have multiple sets of barcodes of different lengths.
+   important when you have multiple sets of barcodes of different lengths. You
+   can optionally trim `N` bases from the beginning of the barcode reads using
+   the `--bc-ltrim N` and `--bc-rtrim N` options.
 
 ## Steps
 
@@ -69,9 +71,6 @@ pandaseq \
    example. Note: barcodes must all be the same length. If you sequenced
    multiple sets of barcodes of different length, you will need to run each set
    of barcodes through the entire pipeline separately.
-2. Barcode reads will be trimmed to the length of the shortest barcode in your
-   `barcodes.csv` file. Sometimes this requires a bit of preprocessing. Call a
-   programmer!
 
 Run script
 
