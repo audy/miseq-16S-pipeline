@@ -3,6 +3,8 @@
 Instructions for processing a multiplexed MiSeq 16 rRNA sequencing run on the
 UF Hipergator.
 
+TODO: VIDEO
+
 ## Goals
 
 1. Process raw Illumina sequencing data for a 16S rRNA amplicon sequenced using
