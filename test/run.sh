@@ -9,7 +9,6 @@
 #PBS -N miseq-pipeline
 
 set -e
-set -x
 
 # input files
 export left_reads='test/data/reads_R1.fastq'
