@@ -1,4 +1,4 @@
-# Instructions
+# Tutorial
 
 Instructions for processing a multiplexed MiSeq 16 rRNA sequencing run on the
 UF Hipergator.
