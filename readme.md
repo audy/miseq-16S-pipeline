@@ -8,21 +8,18 @@ by Austin G. Davis-Richardson <harekrishna@gmail.com>
 
 ### Requirements
 
-1. usearch, 64-bit, version 8
+1. `usearch`¹, 64-bit, version 6
 2. Python 2.7 or greater (but less than 3)
-3. BioPython (`pip install BioPython` usually works)
-4. Pandaseq (from [this]() `ref` on GitHub)
+3. `BioPython`, `pandas` and `runstats (just do `pip install -r requirements.txt`²).
+4. `Pandaseq`¹(from [this]() `ref` on GitHub)
   (`brew install pandaseq --HEAD` will work if you're on a mac and have homebrew + homebrew-science installed)
 
-All of these tools are installed on the HPC.
+- ¹ Pandaseq and usearch are already installed on the HPC.
+- ² May require `sudo`
 
 ### Running on HPC
 
-To run this on the HPC, first run `test/prepare_hpc.sh`. This will load the
-appropriate versions of Pandaseq and USEARCH needed to run the analysis.
-
-Just make sure you connect ot a development node before running any of the
-analysis steps. The easiest way to do this is `ssh dev01`.
+TODO
 
 # Notes
 
@@ -46,7 +43,8 @@ analysis steps. The easiest way to do this is `ssh dev01`.
 1. Assemble pairs with Pandaseq.
 2. Label reads by barcode (1 file = 1 sample, original header).
 3. USEARCH against GreenGenes.
-4. Count taxonomies, generate OTU table.
+4. Filter USEARCH output, count taxonomies, generate OTU table.
+5. Compute summary stats for pipeline output.
 
 ## Pipeline Description
 
