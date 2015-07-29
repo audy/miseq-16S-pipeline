@@ -4,7 +4,7 @@ These are the instructions and source code for analyzing a barcode MiSeq 16S
 rRNA. These instructions should take you from raw MISeq reads to an OTU table
 that can be used by Phyloseq in R, or any other statistical software.
 
-by Austin G. Davis-Richardson
+by Austin G. Davis-Richardson <harekrishna@gmail.com>
 
 ### Requirements
 
@@ -14,11 +14,9 @@ by Austin G. Davis-Richardson
 4. Pandaseq (from [this]() `ref` on GitHub)
   (`brew install pandaseq --HEAD` will work if you're on a mac and have homebrew + homebrew-science installed)
 
-### Running on HPC
+All of these tools are installed on the HPC.
 
-Distributing this on the HPC is possible but not really worth it. You can
-analyze MiSeq 16S rRNA reads on a laptop in a few minutes. But, everything you
-need to run the analysis pipeline is already installed on the HPC.
+### Running on HPC
 
 To run this on the HPC, first run `test/prepare_hpc.sh`. This will load the
 appropriate versions of Pandaseq and USEARCH needed to run the analysis.
@@ -28,8 +26,20 @@ analysis steps. The easiest way to do this is `ssh dev01`.
 
 # Notes
 
-- Must be using latest version of Pandaseq that supports `-i` flag. See this
+1. Must be using latest version of Pandaseq that supports `-i` flag. See this
   [issue](https://github.com/neufeld/pandaseq/issues/45) for details why.
+
+2. If you have multiple sets of barcodes of different lengths, run the pipeline
+   separately for each set and merge the final OTU tables using R.
+
+3. The script that labels reads by barcodes automatically looks for the
+   reverse-complement of the barcode sequences provided in `barcodes.csv`.
+
+4. Make sure the barcode reads are the same length as the barcode sequences in
+   `barcodes.csv` as sometimes ICBR will add on an extra base. This is also
+   important when you have multiple sets of barcodes of different lengths. You
+   can optionally trim `N` bases from the beginning of the barcode reads using
+   the `--bc-ltrim N` and `--bc-rtrim N` options.
 
 ## Steps
 
@@ -38,7 +48,7 @@ analysis steps. The easiest way to do this is `ssh dev01`.
 3. USEARCH against GreenGenes.
 4. Count taxonomies, generate OTU table.
 
-## Usage
+## Pipeline Description
 
 ### Assemble reads w/ Pandaseq
 
@@ -55,15 +65,12 @@ pandaseq \
 
 (pandaseq formats output as fasta by default)
 
-### Label reads by barcode:
+### Label Reads by Barcode
 
 1. Prepare a `barcodes.csv` file (see `data/triplett-barcodes.csv` for an
    example. Note: barcodes must all be the same length. If you sequenced
    multiple sets of barcodes of different length, you will need to run each set
    of barcodes through the entire pipeline separately.
-2. Barcode reads will be trimmed to the length of the shortest barcode in your
-   `barcodes.csv` file. Sometimes this requires a bit of preprocessing. Call a
-   programmer!
 
 Run script
 
@@ -74,7 +81,7 @@ bin/label-by-barcodes \
   > labelled.fasta
 ```
 
-### Run USEARCH
+### Classify Reads with USEARCH
 
 ```bash
 # make usearch database
@@ -98,7 +105,6 @@ usearch \
 bin/count-taxonomies \
   < labelled.uc \
   > labelled.csv
-
 ```
 
 That's it! The file `labelled.csv` can be then loaded into Phyloseq. You will

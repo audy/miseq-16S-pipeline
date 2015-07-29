@@ -32,7 +32,8 @@ def parse_args():
     parser.add_argument('--input-format', default='fasta')
     parser.add_argument('--output-format', default='fasta')
     parser.add_argument('--barcodes', help='barcode list')
-    parser.add_argument('--out-dir')
+    parser.add_argument('--bc-ltrim', help='trim N nucleotides off of left end of barcode read', type=int, default=0)
+    parser.add_argument('--bc-rtrim', help='trim N nucleotides off of right end of barcode read', type=int, default=0)
 
     return parser.parse_args()
 
@@ -89,6 +90,12 @@ def main():
 
     logging.info('reading sequences from %s', args.input)
     logging.info('writing output to %s', args.output)
+
+    logging.info('trimming %s bases from right of barcode reads and'
+                 '%s bases from left of barcode reads',
+                 args.bc_ltrim,
+                 args.bc_rtrim)
+
     output = open(args.output, 'w')
 
     with open(args.input) as handle:
@@ -96,6 +103,9 @@ def main():
         for record in records:
             stats['total'] += 1
             barcode = record.id.split(':')[-1]
+
+            # optionally preprocess barcode
+            barcode = barcode[args.bc_ltrim:len(barcode) - args.bc_rtrim]
 
             id = barcodes.get(barcode, None)
 

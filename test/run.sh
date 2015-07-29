@@ -1,22 +1,28 @@
 #!/bin/bash
 
-set -x
-set -e
+#PBS -q default
+#PBS -m abe
+#PBS -j oe
+#PBS -l pmem=1gb
+#PBS -l walltime=10:00:00
+#PBS -l nodes=1:ppn=12
+#PBS -N miseq-pipeline
 
-left_reads='test/data/reads_R1.fastq'
-bc_reads='test/data/reads_I1.fastq'
-right_reads='test/data/reads_R2.fastq'
-
-database='gg_13_8_otus/rep_set/97_otus.fasta'
+# input files
+: ${left_reads:='test/data/reads_R1.fastq'}
+: ${bc_reads:='test/data/reads_I1.fastq'}
+: ${right_reads:='test/data/reads_R2.fastq'}
+: ${database:='gg_13_8_otus/rep_set/97_otus.fasta'}
 
 # determine number of threads. This is defined by PBS_NP if submitting a job.
-# Otherwise, default to 8.
-: ${PBS_NP:="8"}
+# Otherwise, default to 1.
+: ${PBS_NP:="1"}
 
-# check if running on UF HPC and load modules
+# only run if running on HPC
 if [ ${PBS_O_QUEUE} ]; then
   module load pandaseq/20150627
   module load usearch/6.1.544-64
+  cd ${PBS_O_WORKDIR}
 fi
 
 # assemble overlapping, paired-end Illumina HiSeq reads
@@ -33,13 +39,6 @@ bin/label-by-barcode \
   <  assembled.fasta \
   > labelled.fasta
 
-# make usearch database
-if [ ! -e "${database}.udb" ]; then
-  usearch \
-    -makeudb_usearch ${database} \
-    -output ${database}.udb
-fi
-
 # classify reads with usearch
 usearch \
   -usearch_local labelled.fasta \
@@ -47,8 +46,7 @@ usearch \
   -query_cov 0.95 \
   -strand plus \
   -uc labelled.uc \
-  -db ${database}.udb \
-  -threads ${PBS_NP}
+  -db ${database}.udb
 
 # generate OTU table
 bin/count-taxonomies \
