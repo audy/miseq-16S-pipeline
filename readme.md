@@ -10,7 +10,7 @@ by Austin G. Davis-Richardson <harekrishna@gmail.com>
 
 1. `usearch`¹, 64-bit, version 6
 2. Python 2.7 or greater (but less than 3)
-3. `BioPython`, `pandas` and `runstats (just do `pip install -r requirements.txt`²).
+3. `BioPython`, `pandas` and `runstats` (just do `pip install -r requirements.txt`²).
 4. `Pandaseq`¹(from [this]() `ref` on GitHub)
   (`brew install pandaseq --HEAD` will work if you're on a mac and have homebrew + homebrew-science installed)
 
