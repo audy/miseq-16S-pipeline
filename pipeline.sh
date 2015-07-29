@@ -8,11 +8,12 @@
 #PBS -l nodes=1:ppn=12
 #PBS -N miseq-pipeline
 
-# input files
-: ${left_reads:='test/data/reads_R1.fastq'}
-: ${bc_reads:='test/data/reads_I1.fastq'}
-: ${right_reads:='test/data/reads_R2.fastq'}
-: ${database:='gg_13_8_otus/rep_set/97_otus.fasta'}
+# USAGE:
+
+set -e
+
+# will fail if $out_dir already exists (this is a good thing)
+mkdir ${out_dir}
 
 # determine number of threads. This is defined by PBS_NP if submitting a job.
 # Otherwise, default to 1.
@@ -30,25 +31,27 @@ pandaseq \
   -f $left_reads \
   -i $bc_reads \
   -r $right_reads \
-  -G log.txt.bz2 \
-  -w assembled.fasta
+  -G ${out_dir}/log.txt.bz2 \
+  -w ${out_dir}/assembled.fasta
 
 # label assembled reads by barcode
 bin/label-by-barcode \
   --barcodes data/triplett-barcodes.csv \
-  <  assembled.fasta \
-  > labelled.fasta
+  <  ${out_dir}/assembled.fasta \
+  > ${out_dir}/labelled.fasta
 
 # classify reads with usearch
 usearch \
-  -usearch_local labelled.fasta \
+  -usearch_local ${out_dir}/labelled.fasta \
   -id 0.97 \
   -query_cov 0.95 \
   -strand plus \
-  -uc labelled.uc \
+  -uc ${out_dir}/labelled.uc \
   -db ${database}.udb
 
 # generate OTU table
 bin/count-taxonomies \
-  < labelled.uc \
-  > labelled.csv
+  < ${out_dir}/labelled.uc \
+  > ${out_dir}/labelled.csv
+
+bin/summarize-output --directory ${out_dir}

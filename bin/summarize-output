@@ -1,0 +1,142 @@
+#!/usr/bin/env python
+
+import argparse
+import logging
+from collections import defaultdict
+
+from Bio import SeqIO
+import numpy as np
+
+
+def parse_args():
+    '''
+    return arguments
+    >>> args = parse_args()
+
+    '''
+
+    parser = argparse.ArgumentParser(
+            description = '''
+Summarize results of running pipeline. Good for QC.
+This script can potentially use a lot of RAM.
+Also, you need numpy.
+            ''')
+    parser.add_argument('--log', default='/dev/stderr',
+                        help='log file (default=stderr)')
+    parser.add_argument('--output', default='/dev/stdout')
+    parser.add_argument('--directory', '-d', help='pipeline output directory')
+    return parser.parse_args()
+
+
+def main():
+    '''
+        >>> main() # stuff happens
+    '''
+
+    args = parse_args()
+    logging.basicConfig(filename=args.log, level=logging.INFO)
+
+    # locate files
+
+    assembled = '%s/assembled.fasta' % args.directory
+    labelled = '%s/labelled.fasta' % args.directory
+    uc_file = '%s/labelled.uc' % args.directory
+    otu_table = '%s/labelled.csv' % args.directory
+
+    print '==> PIPELINE STATISTICS'
+    print 'output directory = %s' % args.directory
+    print 'pandaseq assembled reads = %s' % assembled
+    print 'labelled reads = %s' % labelled
+    print 'classified reads = %s' % uc_file
+    print 'OTU table = %s' % otu_table
+
+    #
+    # PANDASEQ
+    #
+
+    lengths = []
+    with open(assembled) as handle:
+        records = SeqIO.parse(handle, format='fasta')
+        for record in records:
+            lengths.append(len(record))
+
+    print
+    print '==> PANDASEQ'
+    print 'reads assembled by pandaseq = %s' % len(lengths)
+    print 'average length = %.2f (SD = %.2f)' % (np.mean(lengths),
+                                                 np.std(lengths))
+
+    #
+    # DEMULTIPLEXING
+    #
+
+    reads_per_barcode = defaultdict(lambda: 0)
+    with open(labelled) as handle:
+        records = SeqIO.parse(handle, format='fasta')
+        for record in records:
+            bc = record.id.split(':')[-1]
+            reads_per_barcode[bc] += 1
+
+    counts = reads_per_barcode.values()
+
+    print
+    print '==> DEMULTIPLEXING'
+    print 'total barcodes = %s' % (len(counts))
+    print 'average reads per barcode = %.2f (SD=%.2f)' % (np.mean(counts), np.std(counts))
+    print 'max reads per barcode = %s' % max(counts)
+    print 'min reads per barcode = %s' % min(counts)
+
+    #
+    # CLASSIFICATION
+    #
+    stats_by_sample = defaultdict(lambda: { 'hit': 0, 'miss': 0 })
+
+    identities = []
+    lengths = []
+    with open(uc_file) as handle:
+        for line in handle:
+            line = line.strip().split("\t")
+            if line[0] == 'H':
+                kind = 'hit'
+            elif line[0] == 'N':
+                kind = 'miss'
+            else:
+                continue
+
+            sample = line[1]
+
+            if kind == 'hit':
+                identity = float(line[3])
+                length = float(line[6])
+                identities.append(identity)
+                lengths.append(length)
+
+            stats_by_sample[sample][kind] += 1
+
+    hits = [ i['hit'] for i in stats_by_sample.values() ]
+    misses = [ i['miss'] for i in stats_by_sample.values() ]
+
+    print
+    print '==> CLASSIFICATION'
+    print 'samples with hits = %s' % len(stats_by_sample.keys())
+    print 'total hits = %s' % sum(hits)
+    print 'total misses = %s' % sum(misses)
+    print 'avg hits per sample = %.2f (SD = %.2f)' % (np.mean(hits),
+                                                      np.std(hits))
+    print 'min/max hits per sample = %s/%s' % (min(hits), max(hits))
+    print 'avg misses per sample = %.2f (SD = %.2f)' % (np.mean(misses),
+                                                      np.std(misses))
+    print 'min/max misses per sample = %s/%s' % (min(misses), max(misses))
+    print 'average identity = %.2f (SD = %.2f)' % (np.mean(identities),
+                                                   np.std(identities))
+    print 'min identity = %s' % min(identities)
+    print 'max identity = %s' % max(identities)
+
+    print 'average length = %.2f (SD = %.2f)' % (np.mean(lengths),
+                                                   np.std(lengths))
+    print 'min length = %i' % min(lengths)
+    print 'max length = %i' % max(lengths)
+
+
+if __name__ == '__main__':
+    main()
