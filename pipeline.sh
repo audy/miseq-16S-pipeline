@@ -51,6 +51,8 @@ usearch \
 
 # generate OTU table
 bin/count-taxonomies \
+  --min-length 250 \
+  --min-identity 0.97 \
   < ${out_dir}/labelled.uc \
   > ${out_dir}/labelled.csv
 
