@@ -19,7 +19,7 @@ def parse_args():
             description = '''
 Summarize results of running pipeline. Good for QC.
 This script can potentially use a lot of RAM.
-Also, you need numpy.
+Also, you need numpy. And pandas.
             ''')
     parser.add_argument('--log', default='/dev/stderr',
                         help='log file (default=stderr)')
@@ -136,6 +136,15 @@ def main():
                                                    np.std(lengths))
     print 'min length = %i' % min(lengths)
     print 'max length = %i' % max(lengths)
+
+    otus = pd.read_csv(otu_table)
+
+    print
+    print '==> OTU TABLE'
+
+    print '%s OTUs' % len(otus.columns)
+    print '%s samples' % len(otus.index)
+    print '%s total reads' % otus.values.sum()
 
 
 if __name__ == '__main__':
