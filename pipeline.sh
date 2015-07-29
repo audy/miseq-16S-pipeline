@@ -54,4 +54,4 @@ bin/count-taxonomies \
   < ${out_dir}/labelled.uc \
   > ${out_dir}/labelled.csv
 
-bin/summarize-output --directory ${out_dir}
+bin/summarize-output --directory ${out_dir} | tee ${out_dir}/stats.txt
