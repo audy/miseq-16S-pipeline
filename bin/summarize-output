@@ -5,8 +5,8 @@ import logging
 from collections import defaultdict
 
 from Bio import SeqIO
-import numpy as np
-
+import pandas as pd
+from runstats import Statistics
 
 def parse_args():
     '''
@@ -18,8 +18,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
             description = '''
 Summarize results of running pipeline. Good for QC.
-This script can potentially use a lot of RAM.
-Also, you need numpy. And pandas.
+Also, you need pandas. And runstats
             ''')
     parser.add_argument('--log', default='/dev/stderr',
                         help='log file (default=stderr)')
@@ -54,17 +53,17 @@ def main():
     # PANDASEQ
     #
 
-    lengths = []
+    lengths = Statistics()
     with open(assembled) as handle:
         records = SeqIO.parse(handle, format='fasta')
         for record in records:
-            lengths.append(len(record))
+            lengths.push(len(record))
 
     print
     print '==> PANDASEQ'
     print 'reads assembled by pandaseq = %s' % len(lengths)
-    print 'average length = %.2f (SD = %.2f)' % (np.mean(lengths),
-                                                 np.std(lengths))
+    print 'average length = %.2f (SD = %.2f)' % (lengths.mean(),
+                                                 lengths.stddev())
 
     #
     # DEMULTIPLEXING
@@ -77,22 +76,23 @@ def main():
             bc = record.id.split(':')[-1]
             reads_per_barcode[bc] += 1
 
-    counts = reads_per_barcode.values()
+    counts = Statistics()
+    [ counts.push(i) for i in reads_per_barcode.values() ]
 
     print
     print '==> DEMULTIPLEXING'
     print 'total barcodes = %s' % (len(counts))
-    print 'average reads per barcode = %.2f (SD=%.2f)' % (np.mean(counts), np.std(counts))
-    print 'max reads per barcode = %s' % max(counts)
-    print 'min reads per barcode = %s' % min(counts)
+    print 'average reads per barcode = %.2f (SD=%.2f)' % (counts.mean(), counts.stddev())
+    print 'max reads per barcode = %s' % counts.maximum()
+    print 'min reads per barcode = %s' % counts.minimum()
 
     #
     # CLASSIFICATION
     #
     stats_by_sample = defaultdict(lambda: { 'hit': 0, 'miss': 0 })
 
-    identities = []
-    lengths = []
+    identity_stats = Statistics()
+    length_stats = Statistics()
     with open(uc_file) as handle:
         for line in handle:
             line = line.strip().split("\t")
@@ -106,36 +106,37 @@ def main():
             sample = line[1]
 
             if kind == 'hit':
-                identity = float(line[3])
-                length = float(line[6])
-                identities.append(identity)
-                lengths.append(length)
+                identity_stats.push(float(line[3]))
+                length_stats.push(float(line[6]))
 
             stats_by_sample[sample][kind] += 1
 
     hits = [ i['hit'] for i in stats_by_sample.values() ]
     misses = [ i['miss'] for i in stats_by_sample.values() ]
 
+    hits_stats = Statistics(hits)
+    misses_stats = Statistics(misses)
+
     print
     print '==> CLASSIFICATION'
     print 'samples with hits = %s' % len(stats_by_sample.keys())
     print 'total hits = %s' % sum(hits)
     print 'total misses = %s' % sum(misses)
-    print 'avg hits per sample = %.2f (SD = %.2f)' % (np.mean(hits),
-                                                      np.std(hits))
+    print 'avg hits per sample = %.2f (SD = %.2f)' % (hits_stats.mean(),
+                                                      hits_stats.stddev())
     print 'min/max hits per sample = %s/%s' % (min(hits), max(hits))
-    print 'avg misses per sample = %.2f (SD = %.2f)' % (np.mean(misses),
-                                                      np.std(misses))
+    print 'avg misses per sample = %.2f (SD = %.2f)' % (misses_stats.mean(),
+                                                        misses_stats.stddev())
     print 'min/max misses per sample = %s/%s' % (min(misses), max(misses))
-    print 'average identity = %.2f (SD = %.2f)' % (np.mean(identities),
-                                                   np.std(identities))
-    print 'min identity = %s' % min(identities)
-    print 'max identity = %s' % max(identities)
+    print 'average identity = %.2f (SD = %.2f)' % (identity_stats.mean(),
+                                                   identity_stats.stddev())
+    print 'min identity = %s' % identity_stats.minimum()
+    print 'max identity = %s' % identity_stats.maximum()
 
-    print 'average length = %.2f (SD = %.2f)' % (np.mean(lengths),
-                                                   np.std(lengths))
-    print 'min length = %i' % min(lengths)
-    print 'max length = %i' % max(lengths)
+    print 'average length = %.2f (SD = %.2f)' % (length_stats.mean(),
+                                                 length_stats.stddev())
+    print 'min length = %i' % length_stats.minimum()
+    print 'max length = %i' % length_stats.maximum()
 
     otus = pd.read_csv(otu_table)
 
