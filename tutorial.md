@@ -110,8 +110,13 @@ window. The other terminal window is connected to the HPC. To send data to the
 HPC, you will need to type a command into your local terminal window.
 
 ```
-# locally
+# run locally
 scp -Cr /Volumes/USB_DRIVE/miseq-15-Mar-2015 username@hipergator.hpc.ufl.edu:/scratch
 
-
+# wait patiently, should take about 20 minutes
 ```
+
+OK let's just skip that and move it from our RLTS drive to save time. The
+instructions are there. Everything else is the same.
+
+##
