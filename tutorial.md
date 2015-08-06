@@ -142,13 +142,13 @@ tree miseq-15-Mar-2015
 You should see the following:
 
 ```
-# miseq-march-2015/
-# ├── MS_ETriplett-103906_16S-BT0_2x300V3
-# │   ├── Undetermined_S0_L001_I1_001.fastq                                  < -- barcode reads
-# │   ├── Undetermined_S0_L001_R1_001.fastq                                  < -- 5'-most reads
-# │   └── Undetermined_S0_L001_R2_001.fastq                                  < -- 3'-most reads
-# ├── MS_ETriplett-103906_16S-BT0_2x300V3.Triplett.Illumina.MiSeq.ReadMe.txt < -- readme from ICBR
-# └── MS_ETriplett-103906_16S-BT0_2x300V3.Triplett.Illumina.MiSeq.sha512     < -- integrity check file
+miseq-march-2015/
+├── MS_ETriplett-103906_16S-BT0_2x300V3
+│   ├── Undetermined_S0_L001_I1_001.fastq                                  < -- barcode reads
+│   ├── Undetermined_S0_L001_R1_001.fastq                                  < -- 5'-most reads
+│   └── Undetermined_S0_L001_R2_001.fastq                                  < -- 3'-most reads
+├── MS_ETriplett-103906_16S-BT0_2x300V3.Triplett.Illumina.MiSeq.ReadMe.txt < -- readme from ICBR
+└── MS_ETriplett-103906_16S-BT0_2x300V3.Triplett.Illumina.MiSeq.sha512     < -- integrity check file
 ```
 
 ## Prepare MiSeq Pipeline
