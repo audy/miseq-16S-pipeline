@@ -184,6 +184,98 @@ You should see
 ### Setup GreenGenes Database
 
 ```
-cd miseq-16S-pipeline
+# from miseq-16S-pipeline
+
+cat prepare.sh
+
+# inspect contents
+# it's really not that complicated
+
+# download and prepare database
 ./prepare.sh
+```
+
+### Run test pipeline
+
+Let's just make sure everything's gonna work, alright?
+
+```
+# from miseq-16S-pipeline
+test/run.sh
+```
+
+# Run Pipeline!
+
+You've finally made it to the pre-game. The real big event is when you analyze
+the output of the pipeline.
+
+```
+# from miseq-16S-pipeline
+cat pipeline.sh
+
+# this is all described in the readme.
+```
+
+## Run Pipeline Manually
+
+Now we're going to run the pipeline step by step so we can see what's going on.
+This is important because you'll sometimes have to make changes.  Later, we'll
+submit the automated version to the HPC queue.
+
+First we need to log-in to a "dev" node so that we don't clog up the submit
+node.
+
+```
+ssh dev01 # or qsub -I
+```
+
+Make sure you are actually running these things on the Dev node or the admins
+will get angry and replace your reads with platyplus DNA!
+
+### Assemble Paired-End Reads
+
+```sh
+# from miseq-16S-pipeline
+
+# (replace forward_reads, etc... with path to our data)
+# (change assembled.fasta to whatever you want the output to be)
+
+pandaseq \
+  -f forward_reads.fastq \
+  -i barcode_reads.fastq \
+  -r reverse_reads.fastq \
+  -w assembled.fasta \
+  -G log.txt.bz2
+
+# grab some coffee
+```
+
+### Label Reads by Barcode
+
+```sh
+bin/label-by-barcodes \
+  --barcodes data/triplett-barcodes.csv \
+  < assembled.fasta \
+  > labelled.fasta
+```
+
+### Classify Reads with USEARCH
+
+```sh
+# classify reads with usearch
+usearch \
+  -usearch_local labelled.fasta \
+  -id 0.97 \
+  -query_cov 0.95 \
+  -strand plus \
+  -uc labelled.uc \
+  -db db/97_otus.udb
+```
+
+### Generate OTU Table
+
+```bash
+bin/count-taxonomies \
+  < labelled.uc \
+  > labelled.csv
 ```
