@@ -3,8 +3,8 @@
 Instructions for processing a multiplexed MiSeq 16 rRNA sequencing run on the
 UF Hipergator.
 
-TODO: VIDEO
-TODO: Slides
+- TODO: VIDEO
+- TODO: Slides
 
 ## Goals
 
@@ -77,7 +77,7 @@ database which I will go over.
 
 ## Connect to HPC
 
-```
+```sh
 # connect using secure shell
 ssh username@hipergator.hpc.ufl.edu
 
@@ -95,7 +95,7 @@ hostname
 # computationally intensive work on them.
 
 # change to scratch directory
-cd /scratch/lfs/username
+cd /scratch/lfs/$USER
 ```
 
 ## Move data to HPC
@@ -109,9 +109,9 @@ Insert the USB drive. Open a new terminal window. This is your local terminal
 window. The other terminal window is connected to the HPC. To send data to the
 HPC, you will need to type a command into your local terminal window.
 
-```
+```sh
 # run locally
-scp -Cr /Volumes/USB_DRIVE/miseq-15-Mar-2015 username@hipergator.hpc.ufl.edu:/scratch
+scp -Cr /Volumes/USB_DRIVE/miseq-15-Mar-2015 username@hipergator.hpc.ufl.edu:/scratch/lfs/$USER
 
 # wait patiently, should take about 20 minutes
 ```
@@ -119,4 +119,7 @@ scp -Cr /Volumes/USB_DRIVE/miseq-15-Mar-2015 username@hipergator.hpc.ufl.edu:/sc
 OK let's just skip that and move it from our RLTS drive to save time. The
 instructions are there. Everything else is the same.
 
-##
+```sh
+# run on the HPC
+cp -r /rlts/triplett/miseq-15-Mar-2015 /scratch/lfs/$USER
+```
