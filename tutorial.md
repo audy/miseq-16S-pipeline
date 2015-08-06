@@ -4,6 +4,7 @@ Instructions for processing a multiplexed MiSeq 16 rRNA sequencing run on the
 UF Hipergator.
 
 TODO: VIDEO
+TODO: Slides
 
 ## Goals
 
@@ -66,3 +67,51 @@ database which I will go over.
 4. Generate an OTU table using `bin/count-taxonomies`. This is a spreadsheet
    that contains sample IDs (rows) and OTU ids (columns) with read counts as
    the cell value. This file can be easily loaded into Python or R (phyloseq).
+
+
+# Steps
+
+## Open Terminal
+
+1. Go to Finder > Utilities > Terminal
+
+## Connect to HPC
+
+```
+# connect using secure shell
+ssh username@hipergator.hpc.ufl.edu
+
+# you may need to type 'yes' to accept the HPC's key
+
+# type your password and press Enter
+# (characters will not display while typing)
+
+# check that you are now connected to the HPC
+hostname
+# should say gator1.hpc or gator2.hpc
+
+# check out the contents of your scratch directory
+# the scratch directory is where files will need to be if you run any
+# computationally intensive work on them.
+
+# change to scratch directory
+cd /scratch/lfs/username
+```
+
+## Move data to HPC
+
+I gave you the data on a USB drive because that is how you will receive it from
+ICBR. The drive is usually encrypted but there are easy to follow instructions
+that come with the drive. The instructions are not always the same so I will
+leave that part to ICBR to explain.
+
+Insert the USB drive. Open a new terminal window. This is your local terminal
+window. The other terminal window is connected to the HPC. To send data to the
+HPC, you will need to type a command into your local terminal window.
+
+```
+# locally
+scp -Cr /Volumes/USB_DRIVE/miseq-15-Mar-2015 username@hipergator.hpc.ufl.edu:/scratch
+
+
+```
