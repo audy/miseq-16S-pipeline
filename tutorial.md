@@ -153,14 +153,35 @@ miseq-march-2015/
 
 ## Prepare MiSeq Pipeline
 
-Download scripts
+### Download scripts
 
 ```sh
 cd /scratch/lfs/$USER
 git clone git@github.com:audy/miseq-16S-pipeline.git
+
+tree miseq-16S-pipeline
 ```
 
-Setup GreenGenes Database
+You should see
+
+```
+├── bin                       < -- pipeline scripts
+│   ├── count-taxonomies
+│   ├── label-by-barcode
+│   └── summarize-output
+├── data
+│   ├── golay-barcodes.csv
+│   └── triplett-barcodes.csv < -- our barcodes
+├── license.md
+├── pipeline.sh               < -- pipeline script
+├── prepare.sh                < -- script to setup greengenes database
+├── readme.md
+├── requirements.txt
+├── test                      < -- test data/code
+└── tutorial.md               < -- this document
+```
+
+### Setup GreenGenes Database
 
 ```
 cd miseq-16S-pipeline
