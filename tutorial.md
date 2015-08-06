@@ -122,4 +122,47 @@ instructions are there. Everything else is the same.
 ```sh
 # run on the HPC
 cp -r /rlts/triplett/miseq-15-Mar-2015 /scratch/lfs/$USER
+# copy (r = copy a directory) source destination
+# this should only take a minute or so
+```
+
+Now that we have the data, let's inspect its contents
+
+```sh
+# on the hPC
+
+# change to scratch directory
+cd /scratch/lfs/$USER
+
+# list contents
+
+tree miseq-15-Mar-2015
+```
+
+You should see the following:
+
+```
+# miseq-march-2015/
+# ├── MS_ETriplett-103906_16S-BT0_2x300V3
+# │   ├── Undetermined_S0_L001_I1_001.fastq                                  < -- barcode reads
+# │   ├── Undetermined_S0_L001_R1_001.fastq                                  < -- 5'-most reads
+# │   └── Undetermined_S0_L001_R2_001.fastq                                  < -- 3'-most reads
+# ├── MS_ETriplett-103906_16S-BT0_2x300V3.Triplett.Illumina.MiSeq.ReadMe.txt < -- readme from ICBR
+# └── MS_ETriplett-103906_16S-BT0_2x300V3.Triplett.Illumina.MiSeq.sha512     < -- integrity check file
+```
+
+## Prepare MiSeq Pipeline
+
+Download scripts
+
+```sh
+cd /scratch/lfs/$USER
+git clone git@github.com:audy/miseq-16S-pipeline.git
+```
+
+Setup GreenGenes Database
+
+```
+cd miseq-16S-pipeline
+./prepare.sh
 ```
