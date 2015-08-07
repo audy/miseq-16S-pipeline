@@ -279,3 +279,46 @@ bin/count-taxonomies \
   < labelled.uc \
   > labelled.csv
 ```
+
+### Inspect Results
+
+This script will print some summary statistics for the various steps of the
+pipeline.
+
+```bash
+bin/summarize-results -d .
+```
+
+## Run Pipeline Using HPC Queue
+
+I have created a script which runs all of the pipeline steps and can be
+submitted to the HPC queue.
+
+(inspect contents of script)
+
+```bash
+qsub -v out_dir=OUTPUT_DIRECTORY,left_reads=LEFT_READS,right_reads=RIGHT_READS,bc_reads=BC_READS pipeline.sh
+```
+
+Specify `OUTPUT_DIRECTORY`, etc... with your own values.
+
+### Check Status of HPC job
+
+```
+qstat -u $USER
+```
+
+- `S`: Submitted and Waiting
+- `R`: Running
+- `C`: Cancelled/Crashed/Completed
+
+
+## Download data from SCP
+
+```
+# run locally
+scp -Cr USERNAME@hipergator.hpc.ufl.edu:/scratch/lfs/USERNAME/output ~/Desktop
+
+# or...
+rsync --compress --recursive --progress USERNAME@hipergator.hpc.ufl.edu:/scratch/lfs/USERNAME/output ~/Desktop
+```
