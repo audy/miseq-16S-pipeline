@@ -268,6 +268,14 @@ submit the automated version to the HPC queue.
 Make sure you are actually running these things on the Dev node or the admins
 will get angry and replace your reads with platyplus DNA!
 
+### Load Modules
+
+```sh
+module load pandaseq/20150627
+module load usearch/6.1.544-64
+module load python/2.7.8
+```
+
 ### Assemble Paired-End Reads
 
 ```sh
