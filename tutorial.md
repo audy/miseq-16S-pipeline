@@ -181,6 +181,20 @@ You should see
 └── tutorial.md               < -- this document
 ```
 
+### Install Requirements
+
+```bash
+# make sure you are running a newer version of Python
+# I have tested all of the scripts on Python 2.7.x. Python 3 will not work.
+# NOTE: you need to do this every time you log-in to the HPC to run these scripts!
+module load python/2.7.8
+
+# install requirements (pandas, runstats, biopython)
+# NOTE: you only need to do this once or if you get an error that says
+# "runstats not found"
+pip install --user -r requirements.txt
+```
+
 ### Setup GreenGenes Database
 
 ```
