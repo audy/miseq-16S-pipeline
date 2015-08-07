@@ -77,6 +77,8 @@ database which I will go over.
 
 ## Connect to HPC
 
+### Connecting to the HPC
+
 ```sh
 # connect using secure shell
 ssh username@hipergator.hpc.ufl.edu
@@ -97,6 +99,25 @@ hostname
 # change to scratch directory
 cd /scratch/lfs/$USER
 ```
+
+### Working on the HPC
+
+Here are some things to keep in mind when working on the HPC:
+
+- There is a head node and dev nodes
+- The head node is for submitting and running small, non-computationally
+   intensive commands.
+- If you run computationally intensive stuff on the head node, you will slow
+   down or crash the HPC for everyone. Type `who` to see who is connected to
+   the HPC. These are the people who will be upset with you.
+- You can either submit jobs or run an interactive terminal session on a dev
+   node.
+- To run an interactive session, type `qsub -I` or `ssh dev01`.
+- To check if you're in an interactive session, type: `hostname`. It should
+  NOT say `gator`.
+- All nodes share the same filesystem. After logging into the dev node, you
+  will be returned to your home directory `~`, so you will need to `cd` back to
+  your scratch directory.
 
 ## Move data to HPC
 
@@ -156,6 +177,7 @@ miseq-march-2015/
 ### Download scripts
 
 ```sh
+# on HPC
 cd /scratch/lfs/$USER
 git clone https://github.com/audy/miseq-16S-pipeline.git
 
@@ -184,6 +206,8 @@ You should see
 ### Install Requirements
 
 ```bash
+# on HPC
+
 # make sure you are running a newer version of Python
 # I have tested all of the scripts on Python 2.7.x. Python 3 will not work.
 # NOTE: you need to do this every time you log-in to the HPC to run these scripts!
@@ -198,7 +222,9 @@ pip install --user -r requirements.txt
 ### Setup GreenGenes Database
 
 ```
-# from miseq-16S-pipeline
+# on HPC
+# from miseq-16S-pipeline directory on scratch
+# make sure you are running on a dev node
 
 cat prepare.sh
 
@@ -214,7 +240,8 @@ cat prepare.sh
 Let's just make sure everything's gonna work, alright?
 
 ```
-# from miseq-16S-pipeline
+# on HPC, dev node
+# from miseq-16S-pipeline directory
 test/run.sh
 ```
 
@@ -224,7 +251,8 @@ You've finally made it to the pre-game. The real big event is when you analyze
 the output of the pipeline.
 
 ```
-# from miseq-16S-pipeline
+# on HPC, dev node
+# from miseq-16S-pipeline directory
 cat pipeline.sh
 
 # this is all described in the readme.
@@ -236,12 +264,6 @@ Now we're going to run the pipeline step by step so we can see what's going on.
 This is important because you'll sometimes have to make changes.  Later, we'll
 submit the automated version to the HPC queue.
 
-First we need to log-in to a "dev" node so that we don't clog up the submit
-node.
-
-```
-ssh dev01 # or qsub -I
-```
 
 Make sure you are actually running these things on the Dev node or the admins
 will get angry and replace your reads with platyplus DNA!
