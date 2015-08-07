@@ -313,7 +313,7 @@ usearch \
   -query_cov 0.95 \
   -strand plus \
   -uc labelled.uc \
-  -db db/97_otus.udb
+  -db miseq-16s-pipeline/gg_13_8_otus/rep_set/97_otus.fasta.udb
 ```
 
 ### Generate OTU Table
