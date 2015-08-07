@@ -297,7 +297,7 @@ pandaseq \
 ### Label Reads by Barcode
 
 ```sh
-bin/label-by-barcodes \
+miseq-16S-pipeline/bin/label-by-barcodes \
   --barcodes data/triplett-barcodes.csv \
   < assembled.fasta \
   > labelled.fasta
@@ -319,7 +319,7 @@ usearch \
 ### Generate OTU Table
 
 ```bash
-bin/count-taxonomies \
+miseq-16S-pipeline/bin/count-taxonomies \
   < labelled.uc \
   > labelled.csv
 ```
@@ -330,7 +330,7 @@ This script will print some summary statistics for the various steps of the
 pipeline.
 
 ```bash
-bin/summarize-results -d .
+miseq-16S-pipeline/bin/summarize-results -d .
 ```
 
 ## Run Pipeline Using HPC Queue
@@ -341,7 +341,15 @@ submitted to the HPC queue.
 (inspect contents of script)
 
 ```bash
-qsub -v out_dir=OUTPUT_DIRECTORY,left_reads=LEFT_READS,right_reads=RIGHT_READS,bc_reads=BC_READS pipeline.sh
+cd /scratch/lfs/$USER
+
+out_dir=/scratch/lfs/$USER/miseq-out
+
+left_reads=/scratch/lfs/$USER/miseq-15-Mar-2015/Triplett/MS_ETriplett-103906_16S-BT0_2x300V3/Undetermined_S0_L001_R1_001.fastq.gz
+bc_reads=/scratch/lfs/$USER/miseq-15-Mar-2015/Triplett/MS_ETriplett-103906_16S-BT0_2x300V3/Undetermined_S0_L001_I1_001.fastq.gz
+right_reads=/scratch/lfs/$USER/miseq-15-Mar-2015/Triplett/MS_ETriplett-103906_16S-BT0_2x300V3/Undetermined_S0_L001_R2_001.fastq.gz
+
+qsub -v out_dir=${out_dir},left_reads=${left_reads},right_reads=${right_reads},bc_reads=${bc_reads} pipeline.sh
 ```
 
 Specify `OUTPUT_DIRECTORY`, etc... with your own values.
