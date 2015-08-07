@@ -48,7 +48,7 @@ usearch \
   -query_cov 0.95 \
   -strand plus \
   -uc ${out_dir}/labelled.uc \
-  -db ${database}.udb
+  -db ${database}
 
 # generate OTU table
 bin/count-taxonomies \
