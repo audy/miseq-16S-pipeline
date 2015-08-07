@@ -297,7 +297,7 @@ pandaseq \
 ### Label Reads by Barcode
 
 ```sh
-miseq-16S-pipeline/bin/label-by-barcodes \
+miseq-16S-pipeline/bin/label-by-barcode \
   --barcodes miseq-16S-pipeline/data/triplett-barcodes.csv \
   < assembled.fasta \
   > labelled.fasta
