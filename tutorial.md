@@ -343,6 +343,9 @@ submitted to the HPC queue.
 ```bash
 cd /scratch/lfs/$USER
 
+# make sure this directory does NOT exist before running pipeline!
+# this is to ensure that the pipeline runs on a fresh set of output data and
+# not incomplete intermediate files
 out_dir=/scratch/lfs/$USER/miseq-out
 
 left_reads=/scratch/lfs/$USER/miseq-15-Mar-2015/Triplett/MS_ETriplett-103906_16S-BT0_2x300V3/Undetermined_S0_L001_R1_001.fastq.gz
