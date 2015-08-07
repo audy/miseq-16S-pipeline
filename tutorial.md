@@ -353,7 +353,7 @@ submitted to the HPC queue.
 (inspect contents of script)
 
 ```bash
-cd /scratch/lfs/$USER
+cd /scratch/lfs/$USER/miseq-16S-pipeline
 
 # make sure this directory does NOT exist before running pipeline!
 # this is to ensure that the pipeline runs on a fresh set of output data and
