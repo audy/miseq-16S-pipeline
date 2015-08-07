@@ -298,7 +298,7 @@ pandaseq \
 
 ```sh
 miseq-16S-pipeline/bin/label-by-barcodes \
-  --barcodes data/triplett-barcodes.csv \
+  --barcodes miseq-16S-pipeline/data/triplett-barcodes.csv \
   < assembled.fasta \
   > labelled.fasta
 ```
