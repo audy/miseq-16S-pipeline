@@ -23,6 +23,7 @@ mkdir ${out_dir}
 if [ ${PBS_O_QUEUE} ]; then
   module load pandaseq/20150627
   module load usearch/6.1.544-64
+  module load python/2.7.8
   cd ${PBS_O_WORKDIR}
 fi
 
