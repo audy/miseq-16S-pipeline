@@ -157,7 +157,7 @@ miseq-march-2015/
 
 ```sh
 cd /scratch/lfs/$USER
-git clone git@github.com:audy/miseq-16S-pipeline.git
+git clone https://github.com/audy/miseq-16S-pipeline.git
 
 tree miseq-16S-pipeline
 ```
