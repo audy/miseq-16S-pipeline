@@ -280,15 +280,26 @@ module load python/2.7.8
 ### Assemble Paired-End Reads
 
 ```sh
-# from miseq-16S-pipeline
+# from scratch
 
 # (replace forward_reads, etc... with path to our data)
 # (change assembled.fasta to whatever you want the output to be)
+
+cd /scratch/lfs/$USER
 
 pandaseq \
   -f forward_reads.fastq \
   -i barcode_reads.fastq \
   -r reverse_reads.fastq \
+  -w assembled.fasta \
+  -G log.txt.bz2
+
+# or
+
+pandaseq \
+  -f miseq-15-Mar-2015/Triplett/MS_ETriplett-103906_16S-BT0_2x300V3/Undetermined_S0_L001_R1_001.fastq.gz \
+  -i miseq-15-Mar-2015/Triplett/MS_ETriplett-103906_16S-BT0_2x300V3/Undetermined_S0_L001_I1_001.fastq.gz \
+  -r miseq-15-Mar-2015/Triplett/MS_ETriplett-103906_16S-BT0_2x300V3/Undetermined_S0_L001_R2_001.fastq.gz \
   -w assembled.fasta \
   -G log.txt.bz2
 
