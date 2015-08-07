@@ -68,7 +68,6 @@ database which I will go over.
    that contains sample IDs (rows) and OTU ids (columns) with read counts as
    the cell value. This file can be easily loaded into Python or R (phyloseq).
 
-
 # Steps
 
 ## Open Terminal
@@ -179,6 +178,8 @@ miseq-march-2015/
 ```sh
 # on HPC
 cd /scratch/lfs/$USER
+
+# case sensitive!
 git clone https://github.com/audy/miseq-16S-pipeline.git
 
 tree miseq-16S-pipeline
