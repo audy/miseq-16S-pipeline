@@ -208,6 +208,8 @@ You should see
 
 ```bash
 # on HPC
+# from miseq-16S-pipeline directory on scratch
+cd /scratch/lfs/$USER/miseq-16S-pipeline
 
 # make sure you are running a newer version of Python
 # I have tested all of the scripts on Python 2.7.x. Python 3 will not work.
@@ -226,11 +228,18 @@ pip install --user -r requirements.txt
 # on HPC
 # from miseq-16S-pipeline directory on scratch
 # make sure you are running on a dev node
+ssh dev01
+cd /scratch/lfs/$USER/miseq-16S-pipeline
 
 cat prepare.sh
 
 # inspect contents
 # it's really not that complicated
+
+# load required modules
+module load pandaseq/20150627
+module load usearch/6.1.544-64
+module load python/2.7.8
 
 # download and prepare database
 ./prepare.sh
